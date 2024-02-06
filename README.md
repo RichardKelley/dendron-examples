@@ -1,4 +1,4 @@
-# Dendron Examples
+# 🌳 Dendron Examples
 
 ## Dependencies
 
