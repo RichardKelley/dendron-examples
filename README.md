@@ -2,11 +2,10 @@
 
 ## Dependencies
 
+You will need to install dendron, of course.
+
 ## Example Applications
 
-### Chat
-### 20 Questions/Animal-Vegetable-Mineral
-### Document Analysis
-### Document Search
-### Physical Inspection (digital twins)
-### Embodied Agents
+### Tutorial 1: A Chat Agent
+
+The content of Tutorial 1 can be found in the `tutorial_1` directory.
