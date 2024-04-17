@@ -6,6 +6,8 @@ from dendron import NodeStatus
 
 import torch
 
+from piper import PiperVoice
+
 from transformers import BarkModel, BarkProcessor
 from optimum.bettertransformer import BetterTransformer
 from spacy.lang.en import English 
@@ -66,6 +68,8 @@ class TTSAction(dendron.ActionNode):
         return dendron.NodeStatus.SUCCESS
 '''
 
+'''
+# Here's another option that doesn't work as well as Piper. From the first version of the tutorial
 class TTSAction(dendron.ActionNode):
     def __init__(self, name):
         super().__init__(name)
@@ -91,6 +95,32 @@ def play_speech(self):
     
     for i in range(num_utterances):
         sd.play(self.blackboard["speech_out"][i,:], self.model.generation_config.sample_rate)
+        sd.wait()
+'''
+
+class TTSAction(dendron.ActionNode):
+    def __init__(self, name):
+        super().__init__(name)
+        self.voice = PiperVoice.load("en_US-danny-low.onnx", config_path="en_US-danny-low.onnx.json", use_cuda=False)
+        
+    def tick(self):
+        input_text = self.blackboard["speech_in"]
+        try:
+            self.blackboard["speech_out"] = [list(self.voice.synthesize_stream_raw(x, sentence_silence=0.1))[0] for x in input_text]
+            self.blackboard["speech_in"] = []
+        except Exception as e:
+            print("Speech generation exception: ", e)
+            return dendron.NodeStatus.FAILURE
+
+        return dendron.NodeStatus.SUCCESS
+
+def play_speech(self):
+    num_utterances = len(self.blackboard["speech_out"])
+
+    for i in range(num_utterances):
+        audio = np.frombuffer(self.blackboard["speech_out"][i], dtype=np.int16)
+        a = (audio - 32768) / 65536
+        sd.play(a, 16000)
         sd.wait()
 
 class SentenceSplitter(dendron.ActionNode):
